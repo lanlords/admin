@@ -1,0 +1,298 @@
+# LanLords Admin Configuration
+# The backend owns this file: it validates it at startup, renders the
+# referenced templates, and serves a sanitized copy to the admin UI.
+#
+# `network` is optional. Omit it for local development (Docker default
+# bridge); set it to "local" in production to attach game containers to the
+# macvlan network. The admin container is attached to the appropriate network
+# by the deployment, not by this application.
+
+defaults:
+  tag: "latest"
+  # "never": creating a server never pulls its image. Pull or update images
+  # explicitly from the admin's Images dialog (or the /api/images/pull endpoints).
+  pullPolicy: "never"
+  restartPolicy: "no"
+  rconPassword: "lanlords"
+  maxPlayers: 16
+
+games:
+  - name: "Counter-Strike 2"
+    slug: "cs2"
+    image: "lanlords/cs2"
+    maxPlayers: 10
+    command:
+      - "-dedicated"
+      - "+map"
+      - "{map}"
+      - "+exec"
+      - "server"
+      - "+hostname"
+      - "{serverName}"
+      - "+maxplayers"
+      - "{maxPlayers}"
+      - "+rcon_password"
+      - "{rconPassword}"
+    query:
+      type: "counterstrike2"
+      port: 27015
+    configs:
+      - name: "Competitive 5v5"
+        slug: "comp-5v5"
+        template: "templates/cs2/competitive-5v5.cfg.j2"
+        target: "/data/game/cs2/cfg/server.cfg"
+      - name: "Deathmatch"
+        slug: "deathmatch"
+        template: "templates/cs2/deathmatch.cfg.j2"
+        target: "/data/game/cs2/cfg/server.cfg"
+      - name: "AWP Only"
+        slug: "awp-only"
+        template: "templates/cs2/awp-only.cfg.j2"
+        target: "/data/game/cs2/cfg/server.cfg"
+    maps:
+      - name: "Dust II"
+        file: "de_dust2"
+      - name: "Inferno"
+        file: "de_inferno"
+      - name: "Mirage"
+        file: "de_mirage"
+      - name: "Nuke"
+        file: "de_nuke"
+      - name: "Vertigo"
+        file: "de_vertigo"
+
+  - name: "Team Fortress 2"
+    slug: "tf2"
+    image: "lanlords/tf2"
+    maxPlayers: 32
+    command:
+      - "-console"
+      - "-game"
+      - "tf"
+      - "-nohltv"
+      - "-port"
+      - "27015"
+      - "+sv_lan"
+      - "1"
+      - "+ip"
+      - "0.0.0.0"
+      - "+map"
+      - "{map}"
+      - "+maxplayers"
+      - "{maxPlayers}"
+      - "+hostname"
+      - "{serverName}"
+      - "+rcon_password"
+      - "{rconPassword}"
+      - "+exec"
+      - "server"
+    query:
+      type: "teamfortress2"
+      port: 27015
+    configs:
+      - name: "Capture the Flag"
+        slug: "ctf"
+        template: "templates/tf2/ctf.cfg.j2"
+        target: "/data/tf/cfg/server.cfg"
+      - name: "Payload Race"
+        slug: "payload"
+        template: "templates/tf2/payload.cfg.j2"
+        target: "/data/tf/cfg/server.cfg"
+      - name: "Arena"
+        slug: "arena"
+        template: "templates/tf2/arena.cfg.j2"
+        target: "/data/tf/cfg/server.cfg"
+    maps:
+      - name: "Badlands"
+        file: "cp_badlands"
+      - name: "Upward"
+        file: "pl_upward"
+      - name: "2Fort"
+        file: "ctf_2fort"
+      - name: "Lakeside"
+        file: "koth_lakeside"
+
+  - name: "Call of Duty 2"
+    slug: "cod2"
+    image: "lanlords/cod2"
+    command:
+      - "+set"
+      - "dedicated"
+      - "1"
+      - "+set"
+      - "g_gametype"
+      - "ctf"
+      - "+map"
+      - "{map}"
+      - "+set"
+      - "sv_punkbuster"
+      - "0"
+      - "+set"
+      - "sv_hostname"
+      - "{serverName}"
+      - "+set"
+      - "rcon_password"
+      - "{rconPassword}"
+      - "+exec"
+      - "server.cfg"
+    query:
+      type: "cod2"
+      port: 28960
+    configs:
+      - name: "Default"
+        slug: "default"
+        template: "templates/cod2/default.cfg.j2"
+        target: "/data/main/server.cfg"
+    maps:
+      - name: "Toujane"
+        file: "mp_toujane"
+      - name: "Carentan"
+        file: "mp_carentan"
+      - name: "Brecourt"
+        file: "mp_brecourt"
+
+  - name: "Call of Duty 4"
+    slug: "cod4"
+    image: "lanlords/cod4"
+    command:
+      - "+set"
+      - "dedicated"
+      - "1"
+      - "+set"
+      - "g_gametype"
+      - "sd"
+      - "+map"
+      - "{map}"
+      - "+set"
+      - "sv_punkbuster"
+      - "0"
+      - "+set"
+      - "sv_hostname"
+      - "{serverName}"
+      - "+set"
+      - "rcon_password"
+      - "{rconPassword}"
+      - "+exec"
+      - "server.cfg"
+    query:
+      type: "cod4mw"
+      port: 28960
+    configs:
+      - name: "Default"
+        slug: "default"
+        template: "templates/cod4/default.cfg.j2"
+        target: "/data/main/server.cfg"
+    maps:
+      - name: "Crash"
+        file: "mp_crash"
+      - name: "Backlot"
+        file: "mp_backlot"
+      - name: "Crossfire"
+        file: "mp_crossfire"
+      - name: "Pipeline"
+        file: "mp_pipeline"
+      - name: "Shipment"
+        file: "mp_shipment"
+
+  - name: "Call of Duty 5"
+    slug: "cod5"
+    image: "lanlords/cod5"
+    command:
+      - "+set"
+      - "dedicated"
+      - "1"
+      - "+set"
+      - "g_gametype"
+      - "sab"
+      - "+map"
+      - "{map}"
+      - "+set"
+      - "sv_punkbuster"
+      - "0"
+      - "+set"
+      - "sv_hostname"
+      - "{serverName}"
+      - "+set"
+      - "rcon_password"
+      - "{rconPassword}"
+      - "+exec"
+      - "server.cfg"
+    query:
+      type: "codwaw"
+      port: 28960
+    configs:
+      - name: "Default"
+        slug: "default"
+        template: "templates/cod5/default.cfg.j2"
+        target: "/data/main/server.cfg"
+    maps:
+      - name: "Castle"
+        file: "mp_castle"
+      - name: "Asylum"
+        file: "mp_asylum"
+      - name: "Dome"
+        file: "mp_dome"
+      - name: "Hangar"
+        file: "mp_hangar"
+
+  - name: "Battlefield 1942"
+    slug: "bf1942"
+    image: "lanlords/bf1942"
+    maxPlayers: 64
+    command:
+      - "+dedicated"
+      - "+statusMonitor"
+      - "1"
+    query:
+      type: "battlefield1942"
+      port: 14567
+    configs:
+      - name: "Default"
+        slug: "default"
+        template: "templates/bf1942/default.con.j2"
+        target: "/data/mods/bf1942/settings/serversettings.con"
+    maps:
+      - name: "Wake Island"
+        file: "wake_island"
+      - name: "Battle of Britain"
+        file: "battle_of_britain"
+      - name: "Gazala"
+        file: "gazala"
+      - name: "Stalingrad"
+        file: "stalingrad"
+
+  - name: "Battlefield 2"
+    slug: "bf2"
+    image: "lanlords/bf2"
+    maxPlayers: 64
+    command:
+      - "+dedicated"
+    query:
+      type: "battlefield2"
+      port: 16567
+    configs:
+      - name: "Default"
+        slug: "default"
+        template: "templates/bf2/default.con.j2"
+        target: "/data/mods/bf2/settings/serversettings.con"
+    maps:
+      - name: "Strike at Karkand"
+        file: "karkand"
+      - name: "Mashuur City"
+        file: "mashuur"
+      - name: "Dalian Plant"
+        file: "dalian"
+      - name: "Zatar Wetlands"
+        file: "zatar"
+
+teams:
+  - name: "FieldFuckers"
+    slug: "FF"
+  - name: "Veldheren"
+    slug: "VH"
+  - name: "Ace Gaming"
+    slug: "AG"
+  - name: "Golden Boys"
+    slug: "GB"
+  - name: "Incapabel"
+    slug: "IMG"
